@@ -18,7 +18,7 @@
   },
   "social_media_url": "https://twitter.com/mwaterfall",
   "source": {
-    "git": "https://github.com/moinku07/MWPhotoBrowser",
+    "git": "https://github.com/FFirX/MWPhotoBrowser",
     "tag": "2.1.4"
   },
   "platforms": {
@@ -46,7 +46,7 @@
       "~> 2.3.1"
     ],
     "SDWebImage": [
-      "~> 4.2.2"
+      "~> 4.3.3"
     ]
   }
 }
