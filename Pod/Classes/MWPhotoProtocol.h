@@ -59,6 +59,8 @@
 
 // Video
 @property (nonatomic) BOOL isVideo;
+// URL of video except asset, use 'getVideoURL:' instead to get URL of all type of video
+- (NSURL *)videoURL;
 - (void)getVideoURL:(void (^)(NSURL *url))completion;
 
 // Return a caption string to be displayed over the image

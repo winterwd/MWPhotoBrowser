@@ -1132,7 +1132,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
     // Disable action button if there is no image or it's a video
     MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
-    if ([photo underlyingImage] == nil || ([photo respondsToSelector:@selector(isVideo)] && photo.isVideo)) {
+    if ([photo underlyingImage] == nil || ([photo respondsToSelector:@selector(isVideo)] && photo.isVideo && ![photo videoURL])) {
         _actionButton.enabled = NO;
         _actionButton.tintColor = [UIColor clearColor]; // Tint to hide button
     } else {
@@ -1617,9 +1617,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [self.delegate photoBrowser:self actionButtonPressedForPhotoAtIndex:_currentPageIndex];
             
         } else {
-            
             // Show activity view controller
-            NSMutableArray *items = [NSMutableArray arrayWithObject:[photo underlyingImage]];
+            BOOL isVideo = ([photo respondsToSelector:@selector(isVideo)] && photo.isVideo);
+            BOOL hasVideoURL = ([photo respondsToSelector:@selector(videoURL)] && [photo videoURL]);
+            NSMutableArray *items = [NSMutableArray arrayWithObject:(isVideo && hasVideoURL) ? [photo videoURL] : [photo underlyingImage]];
             if (photo.caption) {
                 [items addObject:photo.caption];
             }
