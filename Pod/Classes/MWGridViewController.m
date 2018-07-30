@@ -111,6 +111,9 @@
 
 - (void)performLayout {
     UINavigationBar *navBar = self.navigationController.navigationBar;
+    if (@available(iOS 11, *)) {
+        self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     self.collectionView.contentInset = UIEdgeInsetsMake(navBar.frame.origin.y + navBar.frame.size.height + [self getGutter], 0, 0, 0);
 }
 
