@@ -7,7 +7,7 @@
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=mwaterfall&url=https://github.com/mwaterfall/MWPhotoBrowser&title=MWPhotoBrowser&language=&tags=github&category=software)
 
-## MBProgressHUD 1.1.0，DACircularProgress 2.3.1，SDWebImage 4.4.2:
+## MBProgressHUD 1.1.0，DACircularProgress 2.3.1，SDWebImage 5.0.0-beta5:
 
 ```pod "MWPhotoBrowser", :podspec =>'https://raw.githubusercontent.com/FFirX/MWPhotoBrowser/master/MWPhotoBrowser.podspec'```
 
@@ -32,7 +32,7 @@ The browser can also be used to allow the user to select one or more photos usin
 [screenshot6_thumb]: https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser6t.png
 [screenshot6]: https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser6.png
 
-Works on iOS 7+. All strings are localisable so they can be used in apps that support multiple languages.
+Works on iOS 8+. All strings are localisable so they can be used in apps that support multiple languages.
 
 ## Usage
 
