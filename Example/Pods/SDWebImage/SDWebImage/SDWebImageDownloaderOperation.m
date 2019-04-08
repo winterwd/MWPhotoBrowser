@@ -16,11 +16,6 @@ const float NSURLSessionTaskPriorityDefault = 0.5;
 const float NSURLSessionTaskPriorityLow = 0.25;
 #endif
 
-NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
-NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
-NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
-NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
-
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
@@ -141,7 +136,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         Class UIApplicationClass = NSClassFromString(@"UIApplication");
         BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
         if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
-            __weak __typeof__ (self) wself = self;
+            __weak typeof(self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
             self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
                 [wself cancel];
@@ -206,7 +201,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadOperation userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
         [self done];
-        return;
     }
 }
 
@@ -413,6 +407,7 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             NSData *imageData = [self.imageData copy];
+            self.imageData = nil;
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data

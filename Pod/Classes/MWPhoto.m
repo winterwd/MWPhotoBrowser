@@ -209,7 +209,7 @@
 
 // Load from local file
 - (void)_performLoadUnderlyingImageAndNotifyWithWebURL:(NSURL *)url {
-    [[[SDWebImageManager sharedManager] imageLoader] loadImageWithURL:url options:SDWebImageRefreshCached context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+    [[[SDWebImageManager sharedManager] imageLoader] requestImageWithURL:url options:SDWebImageRefreshCached context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         if (expectedSize > 0) {
             float progress = receivedSize / (float)expectedSize;
             NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:

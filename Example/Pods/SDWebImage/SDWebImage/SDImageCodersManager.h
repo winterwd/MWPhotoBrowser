@@ -17,10 +17,10 @@
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `GIFCoder`
- - calling `coders` will return `@[IOCoder, GIFCoder]`
+ - by default we internally set coders = `IOCoder`, `GIFCoder`, `APNGCoder`
+ - calling `coders` will return `@[IOCoder, GIFCoder, APNGCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
- - calling `coders` now returns `@[IOCoder, GIFCoder, MyCrazyCoder]`
+ - calling `coders` now returns `@[IOCoder, GIFCoder, APNGCoder, MyCrazyCoder]`
  
  Coders
  ------
@@ -39,7 +39,7 @@
 /**
  All coders in coders manager. The coders array is a priority queue, which means the later added coder will have the highest priority
  */
-@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDImageCoder>> *coders;
+@property (nonatomic, copy, nullable) NSArray<id<SDImageCoder>> *coders;
 
 /**
  Add a new coder to the end of coders array. Which has the highest priority.

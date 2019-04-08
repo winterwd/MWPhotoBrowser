@@ -7,70 +7,19 @@
  */
 
 #import "SDImageCachesManager.h"
+#import "SDImageCachesManagerOperation.h"
+#import "SDImageCache.h"
 
-// This is used for operation management, but not for operation queue execute
-@interface SDImageCachesManagerOperation : NSOperation
+@interface SDImageCachesManager ()
 
-@property (nonatomic, assign, readonly) NSUInteger pendingCount;
-
-- (void)beginWithTotalCount:(NSUInteger)totalCount;
-- (void)completeOne;
-- (void)done;
-
-@end
-
-@implementation SDImageCachesManagerOperation
-
-@synthesize executing = _executing;
-@synthesize finished = _finished;
-@synthesize cancelled = _cancelled;
-
-- (void)beginWithTotalCount:(NSUInteger)totalCount {
-    self.executing = YES;
-    self.finished = NO;
-    _pendingCount = totalCount;
-}
-
-- (void)completeOne {
-    _pendingCount = _pendingCount > 0 ? _pendingCount - 1 : 0;
-}
-
-- (void)cancel {
-    self.cancelled = YES;
-    [self reset];
-}
-
-- (void)done {
-    self.finished = YES;
-    self.executing = NO;
-    [self reset];
-}
-
-- (void)reset {
-    _pendingCount = 0;
-}
-
-- (void)setFinished:(BOOL)finished {
-    [self willChangeValueForKey:@"isFinished"];
-    _finished = finished;
-    [self didChangeValueForKey:@"isFinished"];
-}
-
-- (void)setExecuting:(BOOL)executing {
-    [self willChangeValueForKey:@"isExecuting"];
-    _executing = executing;
-    [self didChangeValueForKey:@"isExecuting"];
-}
-
-- (void)setCancelled:(BOOL)cancelled {
-    [self willChangeValueForKey:@"isCancelled"];
-    _cancelled = cancelled;
-    [self didChangeValueForKey:@"isCancelled"];
-}
+@property (nonatomic, strong, nonnull) dispatch_semaphore_t cachesLock;
 
 @end
 
 @implementation SDImageCachesManager
+{
+    NSMutableArray<id<SDImageCache>> *_imageCaches;
+}
 
 + (SDImageCachesManager *)sharedManager {
     static dispatch_once_t onceToken;
@@ -89,8 +38,27 @@
         self.removeOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
         self.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
         self.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
+        // initialize with default image caches
+        _imageCaches = [NSMutableArray arrayWithObject:[SDImageCache sharedImageCache]];
+        _cachesLock = dispatch_semaphore_create(1);
     }
     return self;
+}
+
+- (NSArray<id<SDImageCache>> *)caches {
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = [_imageCaches copy];
+    SD_UNLOCK(self.cachesLock);
+    return caches;
+}
+
+- (void)setCaches:(NSArray<id<SDImageCache>> *)caches {
+    SD_LOCK(self.cachesLock);
+    [_imageCaches removeAllObjects];
+    if (caches.count) {
+        [_imageCaches addObjectsFromArray:caches];
+    }
+    SD_UNLOCK(self.cachesLock);
 }
 
 #pragma mark - Cache IO operations
@@ -99,21 +67,18 @@
     if (![cache conformsToProtocol:@protocol(SDImageCache)]) {
         return;
     }
-    NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
-    if (!mutableCaches) {
-        mutableCaches = [NSMutableArray array];
-    }
-    [mutableCaches addObject:cache];
-    self.caches = [mutableCaches copy];
+    SD_LOCK(self.cachesLock);
+    [_imageCaches addObject:cache];
+    SD_UNLOCK(self.cachesLock);
 }
 
 - (void)removeCache:(id<SDImageCache>)cache {
     if (![cache conformsToProtocol:@protocol(SDImageCache)]) {
         return;
     }
-    NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
-    [mutableCaches removeObject:cache];
-    self.caches = [mutableCaches copy];
+    SD_LOCK(self.cachesLock);
+    [_imageCaches removeObject:cache];
+    SD_UNLOCK(self.cachesLock);
 }
 
 #pragma mark - SDImageCache
@@ -122,7 +87,7 @@
     if (!key) {
         return nil;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    NSArray<id<SDImageCache>> *caches = self.caches;
     NSUInteger count = caches.count;
     if (count == 0) {
         return nil;
@@ -164,7 +129,7 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    NSArray<id<SDImageCache>> *caches = self.caches;
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -202,7 +167,7 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    NSArray<id<SDImageCache>> *caches = self.caches;
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -240,7 +205,7 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    NSArray<id<SDImageCache>> *caches = self.caches;
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -277,7 +242,7 @@
 }
 
 - (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    NSArray<id<SDImageCache>> *caches = self.caches;
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -468,8 +433,9 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        @strongify(self);
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -488,7 +454,7 @@
             return;
         }
         // Next
-        [wself serialQueryImageForKey:key options:options context:context completion:completionBlock enumerator:enumerator operation:operation];
+        [self serialQueryImageForKey:key options:options context:context completion:completionBlock enumerator:enumerator operation:operation];
     }];
 }
 
@@ -502,10 +468,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 
@@ -519,10 +486,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache removeImageForKey:key cacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialRemoveImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialRemoveImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 
@@ -538,8 +506,9 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache containsImageForKey:key cacheType:cacheType completion:^(SDImageCacheType containsCacheType) {
+        @strongify(self);
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -558,7 +527,7 @@
             return;
         }
         // Next
-        [wself serialContainsImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator operation:operation];
+        [self serialContainsImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator operation:operation];
     }];
 }
 
@@ -572,10 +541,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache clearWithCacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialClearWithCacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialClearWithCacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 
