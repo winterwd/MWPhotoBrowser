@@ -35,7 +35,7 @@
     "ImageIO",
     "QuartzCore",
     "AssetsLibrary",
-    "MediaPlayer"
+    "AVKit"
   ],
   "weak_frameworks": "Photos",
   "dependencies": {
