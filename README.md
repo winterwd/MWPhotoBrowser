@@ -7,9 +7,9 @@
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=mwaterfall&url=https://github.com/mwaterfall/MWPhotoBrowser&title=MWPhotoBrowser&language=&tags=github&category=software)
 
-## MBProgressHUD 1.1.0，DACircularProgress 2.3.1，SDWebImage 5.0.0:
+## MBProgressHUD 1.1.0，DACircularProgress 2.3.1，SDWebImage 5.3.1:
 
-```pod "MWPhotoBrowser", :podspec =>'https://raw.githubusercontent.com/FFirX/MWPhotoBrowser/3.0.0/MWPhotoBrowser.podspec'```
+```pod "MWPhotoBrowser", :podspec =>'https://raw.githubusercontent.com/FFirX/MWPhotoBrowser/3.1.0/MWPhotoBrowser.podspec'```
 
 ## A simple iOS photo and video browser with optional grid view, captions and selections.
 
