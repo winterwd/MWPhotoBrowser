@@ -11,12 +11,12 @@ Pod::Spec.new do |s|
                   Photos can be zoomed and panned, and optional (customisable) captions can be displayed.
                   DESCRIPTION
   s.screenshots = [
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser1.png',
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser2.png',
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser3.png',
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser4.png',
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser5.png',
-    'https://raw.github.com/mwaterfall/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser6.png'
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser1.png',
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser2.png',
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser3.png',
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser4.png',
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser5.png',
+    'https://raw.github.com/winterwd/MWPhotoBrowser/master/Screenshots/MWPhotoBrowser6.png'
   ]
 
   s.homepage = 'https://github.com/mwaterfall/MWPhotoBrowser'
@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/mwaterfall'
 
   s.source = {
-    :git => 'https://github.com/FFirX/MWPhotoBrowser',
+    :git => 'https://github.com/winterwd/MWPhotoBrowser',
     :tag => '3.1.0'
   }
   s.platform = :ios, '8.0'
@@ -37,12 +37,8 @@ Pod::Spec.new do |s|
   s.frameworks = 'ImageIO', 'QuartzCore', 'AssetsLibrary', 'AVKit'
   s.weak_frameworks = 'Photos'
 
-  s.dependency 'MBProgressHUD', '~> 1.1.0'
-  s.dependency 'DACircularProgress', '~> 2.3.1'
-
-  # SDWebImage
-  # 3.7.2 contains bugs downloading local files
-  # https://github.com/rs/SDWebImage/issues/1109
-  s.dependency 'SDWebImage', '~> 5.3.1'
+  s.dependency 'MBProgressHUD'
+  s.dependency 'DACircularProgress'
+  s.dependency 'SDWebImage'
 
 end
